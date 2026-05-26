@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+src/plotter.py
+src/stak.py
+src/stak.egg-info/PKG-INFO
+src/stak.egg-info/SOURCES.txt
+src/stak.egg-info/dependency_links.txt
+src/stak.egg-info/requires.txt
+src/stak.egg-info/top_level.txt

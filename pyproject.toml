@@ -1,0 +1,18 @@
+[project]
+name = "stak"
+version = "0.1.0"
+description = "DAG utilities for sharded JAX model hierarchies."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "jax",
+    "numpy",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["stak", "plotter"]

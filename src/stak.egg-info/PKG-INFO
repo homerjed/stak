@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: stak
+Version: 0.1.0
+Summary: DAG utilities for sharded JAX model hierarchies.
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: jax
+Requires-Dist: numpy
+
+# stak
+
+DAG utilities for sharded JAX model hierarchies.
