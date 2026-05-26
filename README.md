@@ -6,6 +6,15 @@ sharding specs.
 
 The idea is to separate model building and device layouts, similar to how the `equinox` package allows expressing ML models on single elements of a batch.
 
+Currently we assume that we have a collection of devices looking something like:
+
+```
+[CudaDevice(id=0), CudaDevice(id=1), CudaDevice(id=2), CudaDevice(id=3),
+ CudaDevice(id=4), CudaDevice(id=5), CudaDevice(id=6), CudaDevice(id=7)]
+```
+
+but in the future it should be possible to extend this to multi-process setups.
+
 Each `RandomVariableEntry` declares:
 
 - the node name and dependencies,
