@@ -205,7 +205,7 @@ def _validate_array_against_specs(
 # ---------------------------------------------------------------------
 
 @dataclass(frozen=True)
-class RandomVariableEntry:
+class Node:
     name: str
     devices: tuple[Any, ...]
 
@@ -424,7 +424,7 @@ class RandomVariableEntry:
             mesh_axis_sizes=self.mesh_axis_sizes,
         )
 
-    def default_dep_specs(self, dep_entry: "RandomVariableEntry") -> P:
+    def default_dep_specs(self, dep_entry: "Node") -> P:
         axis_resources = _axis_resources_for_value(
             has_sample_axis=dep_entry.has_sample_axis,
             event_shape=dep_entry.output_event_shape,
@@ -435,8 +435,8 @@ class RandomVariableEntry:
 
     def compile(
         self,
-        hierarchy: Mapping[str, "RandomVariableEntry"],
-    ) -> "RandomVariableEntry":
+        hierarchy: Mapping[str, "Node"],
+    ) -> "Node":
         fn = self.fn if self.fn is not None else _identity
 
         # Source nodes receive one external array, so shard_map uses this node's
@@ -484,7 +484,7 @@ class RandomVariableEntry:
 # Topological sorting and DAG evaluation
 # ---------------------------------------------------------------------
 
-def topological_order(hierarchy: Mapping[str, RandomVariableEntry]) -> list[str]:
+def topological_order(hierarchy: Mapping[str, Node]) -> list[str]:
     order = []
     state = {}
 
@@ -524,8 +524,8 @@ def topological_order(hierarchy: Mapping[str, RandomVariableEntry]) -> list[str]
 
 
 def compile_hierarchy(
-    hierarchy: Mapping[str, RandomVariableEntry],
-) -> tuple[dict[str, RandomVariableEntry], list[str]]:
+    hierarchy: Mapping[str, Node],
+) -> tuple[dict[str, Node], list[str]]:
     # Compile parents before children so dependency metadata is available when a
     # child builds its input specs.
     order = topological_order(hierarchy)
@@ -545,8 +545,8 @@ def _reshard_dep_for_child(
     *,
     dep_name: str,
     dep_value: Array,
-    dep_entry: RandomVariableEntry,
-    child_entry: RandomVariableEntry,
+    dep_entry: Node,
+    child_entry: Node,
     dep_spec: P,
 ) -> Array:
     dep_axis_resources = _spec_to_tuple(dep_spec)
@@ -567,7 +567,7 @@ def _reshard_dep_for_child(
 
 def hierarchy_model(
     inputs: Mapping[str, Array],
-    hierarchy: Mapping[str, RandomVariableEntry],
+    hierarchy: Mapping[str, Node],
     order: Sequence[str] | None = None,
     *,
     return_all: bool = True,

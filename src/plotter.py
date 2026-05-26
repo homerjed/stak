@@ -3,11 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Mapping, Sequence
 
-from stak import RandomVariableEntry, topological_order
+from stak import Node, topological_order
 
 
 def hierarchy_edges(
-    hierarchy: Mapping[str, RandomVariableEntry],
+    hierarchy: Mapping[str, Node],
     order: Sequence[str] | None = None,
 ) -> list[tuple[str, str]]:
     """Return dependency edges as (parent, child) pairs."""
@@ -24,7 +24,7 @@ def hierarchy_edges(
 
 
 def hierarchy_levels(
-    hierarchy: Mapping[str, RandomVariableEntry],
+    hierarchy: Mapping[str, Node],
     order: Sequence[str] | None = None,
 ) -> dict[str, int]:
     """Assign each node to a dependency depth for left-to-right drawings."""
@@ -41,7 +41,7 @@ def hierarchy_levels(
 
 
 def hierarchy_to_mermaid(
-    hierarchy: Mapping[str, RandomVariableEntry],
+    hierarchy: Mapping[str, Node],
     order: Sequence[str] | None = None,
     *,
     direction: str = "LR",
@@ -73,7 +73,7 @@ def hierarchy_to_mermaid(
 
 
 def hierarchy_to_dot(
-    hierarchy: Mapping[str, RandomVariableEntry],
+    hierarchy: Mapping[str, Node],
     order: Sequence[str] | None = None,
     *,
     include_specs: bool = True,
@@ -117,7 +117,7 @@ def hierarchy_to_dot(
 
 
 def write_hierarchy_diagram(
-    hierarchy: Mapping[str, RandomVariableEntry],
+    hierarchy: Mapping[str, Node],
     path: str | Path,
     order: Sequence[str] | None = None,
     *,

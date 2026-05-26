@@ -15,7 +15,7 @@ Currently we assume that we have a collection of devices looking something like:
 
 but in the future it should be possible to extend this to multi-process setups.
 
-Each `RandomVariableEntry` declares:
+Each `Node` declares:
 
 - the node name and dependencies,
 - the function to run for that node,
@@ -39,14 +39,14 @@ uv run python examples/dag_test.py
 uv run python examples/dag_test_channels.py
 ```
 
-Use `stak` by defining one `RandomVariableEntry` per DAG node, compiling the
+Use `stak` by defining one `Node` per DAG node, compiling the
 hierarchy, and then evaluating it with input arrays for the source nodes.
 
 ```python
 import jax
 import jax.numpy as jnp
 
-from stak import RandomVariableEntry, compile_hierarchy, device_group, hierarchy_model
+from stak import Node, compile_hierarchy, device_group, hierarchy_model
 
 
 def source_model(x):
@@ -60,7 +60,7 @@ def derived_model(args):
 devices = tuple(jax.devices())
 
 hierarchy = {
-    "x": RandomVariableEntry(
+    "x": Node(
         name="x",
         devices=device_group(devices, 0, 2),
         event_shape=(4,),
@@ -68,7 +68,7 @@ hierarchy = {
         deps=(),
         fn=source_model,
     ),
-    "y": RandomVariableEntry(
+    "y": Node(
         name="y",
         devices=device_group(devices, 0, 2),
         event_shape=(4,),

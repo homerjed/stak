@@ -1,10 +1,7 @@
 import os
-import sys
 from pathlib import Path
 
-os.environ["JAX_NUM_CPU_DEVICES"] = "8"
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+os.environ["JAX_NUM_CPU_DEVICES"] = "8" # Simulate multiple devices
 
 import jax
 import jax.numpy as jnp
@@ -12,7 +9,7 @@ import numpy as np
 
 from plotter import write_hierarchy_diagram
 from stak import (
-    RandomVariableEntry,
+    Node,
     _reshard_dep_for_child,
     compile_hierarchy,
     device_group,
@@ -93,7 +90,7 @@ def build_hierarchy(devices):
     sample_devices = device_group(devices, 0, 2)
 
     return dict(
-        image=RandomVariableEntry(
+        image=Node(
             name="image",
             devices=image_devices,
             event_shape=(4, 32, 32),
@@ -105,7 +102,7 @@ def build_hierarchy(devices):
             in_axis_resources=("n", "c", None, None),
             out_axis_resources=("n", "c", None, None),
         ),
-        channel_bias=RandomVariableEntry(
+        channel_bias=Node(
             name="channel_bias",
             devices=channel_devices,
             event_shape=(4,),
@@ -117,7 +114,7 @@ def build_hierarchy(devices):
             in_axis_resources=("c",),
             out_axis_resources=("c",),
         ),
-        features=RandomVariableEntry(
+        features=Node(
             name="features",
             devices=image_devices,
             event_shape=(4, 32, 32),
@@ -133,7 +130,7 @@ def build_hierarchy(devices):
                 "image": ("n", "c", None, None),
             },
         ),
-        logits=RandomVariableEntry(
+        logits=Node(
             name="logits",
             devices=image_devices,
             event_shape=(4,),
@@ -150,7 +147,7 @@ def build_hierarchy(devices):
                 "channel_bias": ("c",),
             },
         ),
-        final=RandomVariableEntry(
+        final=Node(
             name="final",
             devices=sample_devices,
             event_shape=(4,),
@@ -174,6 +171,9 @@ def hierarchy_model_with_jitted_node_calls(inputs, hierarchy, order):
 
     for name in order:
         entry = hierarchy[name]
+
+        # It may be possible to simply put the in/out shardings
+        # here in the jit definition of the apply function...
         jitted_apply = jax.jit(entry.apply)
 
         if len(entry.deps) == 0:

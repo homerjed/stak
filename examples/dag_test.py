@@ -1,17 +1,13 @@
 import os
-import sys
-from pathlib import Path
 
 os.environ["JAX_NUM_CPU_DEVICES"] = "8"
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 
 from stak import (
-    RandomVariableEntry,
+    Node,
     _reshard_dep_for_child,
     compile_hierarchy,
     device_group,
@@ -113,7 +109,7 @@ def print_hierarchy_summary(hierarchy, order):
 
 def build_hierarchy(devices):
     return dict(
-        image=RandomVariableEntry(
+        image=Node(
             name="image",
             devices=device_group(devices, 0, 2),
             event_shape=(1, 32, 32),
@@ -121,7 +117,7 @@ def build_hierarchy(devices):
             deps=(),
             fn=image_source_model,
         ),
-        vector=RandomVariableEntry(
+        vector=Node(
             name="vector",
             devices=device_group(devices, 2, 4),
             event_shape=(10,),
@@ -129,7 +125,7 @@ def build_hierarchy(devices):
             deps=(),
             fn=vector_source_model,
         ),
-        sample_scalar=RandomVariableEntry(
+        sample_scalar=Node(
             name="sample_scalar",
             devices=device_group(devices, 4, 6),
             event_shape=(),
@@ -137,7 +133,7 @@ def build_hierarchy(devices):
             deps=(),
             fn=sample_scalar_source_model,
         ),
-        global_scalar=RandomVariableEntry(
+        global_scalar=Node(
             name="global_scalar",
             devices=device_group(devices, 4, 6),
             event_shape=(),
@@ -145,7 +141,7 @@ def build_hierarchy(devices):
             deps=(),
             fn=global_scalar_source_model,
         ),
-        tensor=RandomVariableEntry(
+        tensor=Node(
             name="tensor",
             devices=device_group(devices, 6, 8),
             event_shape=(4, 6, 8),
@@ -153,7 +149,7 @@ def build_hierarchy(devices):
             deps=(),
             fn=tensor_source_model,
         ),
-        latent=RandomVariableEntry(
+        latent=Node(
             name="latent",
             devices=device_group(devices, 6, 8),
             event_shape=(10,),
@@ -162,7 +158,7 @@ def build_hierarchy(devices):
             deps=("vector", "sample_scalar", "global_scalar"),
             fn=latent_from_vector_and_scalar,
         ),
-        conditioned_image=RandomVariableEntry(
+        conditioned_image=Node(
             name="conditioned_image",
             devices=device_group(devices, 0, 2),
             event_shape=(1, 32, 32),
@@ -171,7 +167,7 @@ def build_hierarchy(devices):
             deps=("image", "latent"),
             fn=image_conditioned_on_latent,
         ),
-        final=RandomVariableEntry(
+        final=Node(
             name="final",
             devices=device_group(devices, 2, 4),
             event_shape=(),
